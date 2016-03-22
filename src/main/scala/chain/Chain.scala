@@ -1,113 +1,112 @@
-package vec
+package chain
 
 import scala.annotation.tailrec
 
 /**
- * Vec wraps Iterable[A] instances to enable fast concatenation and
+ * Chain wraps Iterable[A] instances to enable fast concatenation and
  * traversal.
- *
- * 
  */
-sealed abstract class Vec[+A] {
+sealed abstract class Chain[+A] {
 
   /**
-   * Concatenate two Vecs.
+   * Concatenate two Chains.
    *
-   * This is a fast O(1) operation: it simply returns a new Vec.Concat
-   * instance wrapping the arguments.
+   * This is a fast O(1) operation: it simply returns a new
+   * Chain.Concat instance wrapping the arguments.
    */
-  def ++[A1 >: A](that: Vec[A1]): Vec[A1] =
-    Vec.Concat(this, that)
+  def ++[A1 >: A](that: Chain[A1]): Chain[A1] =
+    Chain.Concat(this, that)
 
   /**
-   * Append a value to a Vec.
+   * Append a value to a Chain.
    *
-   * (x :+ a) is equivalent to (x ++ Vec.single(a)).
+   * (x :+ a) is equivalent to (x ++ Chain.single(a)).
    */
-  def :+[A1 >: A](a: A1): Vec[A1] =
-    Vec.Concat(this, Vec.Elems(a :: Nil))
+  def :+[A1 >: A](a: A1): Chain[A1] =
+    Chain.Concat(this, Chain.Elems(a :: Nil))
 
   /**
-   * Prepend a value to a Vec.
+   * Prepend a value to a Chain.
    *
-   * (a +: x) is equivalent to (Vec.single(a) ++ x).
+   * (a +: x) is equivalent to (Chain.single(a) ++ x).
    */
-  def +:[A1 >: A](a: A1): Vec[A1] =
-    Vec.Concat(Vec.Elems(a :: Nil), this)
+  def +:[A1 >: A](a: A1): Chain[A1] =
+    Chain.Concat(Chain.Elems(a :: Nil), this)
 
   /**
-   * Return an iterator over the contents of this Vec.
+   * Return an iterator over the contents of this Chain.
    *
    * This is a fast O(1) operation, although traversing the iterator
    * is itself an O(n) operation (which also uses O(n) heap).
    */
   def iterator: Iterator[A] =
     this match {
-      case Vec.Elems(values) => values.iterator
-      case vec => new Vec.VecIterator(vec)
+      case Chain.Elems(values) => values.iterator
+      case vec => new Chain.ChainIterator(vec)
     }
 
   /**
-   * Compress a Vec, removing its internal structure.
+   * Compress a Chain, removing its internal structure.
    *
-   * In general, this is an O(n) operation which will compact this Vec
-   * into a single Vec.Elems instance wrapping a vector. However, if
-   * the Vec is already compressed (i.e. Vec.Elems) this does not do
-   * any work or allocate a new Vec.
+   * In general, this is an O(n) operation which will compact this
+   * Chain into a single Chain.Elems instance wrapping a
+   * vector. However, if the Chain is already compressed
+   * (i.e. Chain.Elems) this does not do any work or allocate a new
+   * Chain.
    *
    * When working with a large number of very small collections, this
    * method can have a big impact.
    */
-  def compress: Vec[A] =
+  def compress: Chain[A] =
     this match {
-      case Vec.Elems(_) => this
-      case _ => Vec.Elems(iterator.toVector)
+      case Chain.Elems(_) => this
+      case _ => Chain.Elems(iterator.toVector)
     }
 
   /**
-   * Translate a Vec using the given function.
+   * Translate a Chain using the given function.
    *
    * This is an O(n) operation.
    *
-   * The resulting Vec will naturally be compressed.
+   * The resulting Chain will naturally be compressed.
    */
-  def map[B](f: A => B): Vec[B] =
-    Vec.Elems(iterator.map(f).toVector)
+  def map[B](f: A => B): Chain[B] =
+    Chain.Elems(iterator.map(f).toVector)
 
   /**
-   * Translate a Vec using the given function.
+   * Translate a Chain using the given function.
    *
-   * This is an O(n * m) operation, where n is the length of this Vec
-   * and m represents the average length of the Vec instances produced
-   * by f.
+   * This is an O(n * m) operation, where n is the length of this
+   * Chain and m represents the average length of the Chain instances
+   * produced by f.
    */
-  def flatMap[B](f: A => Vec[B]): Vec[B] =
-    Vec.Elems(iterator.flatMap(a => f(a).iterator).toVector)
+  def flatMap[B](f: A => Chain[B]): Chain[B] =
+    Chain.Elems(iterator.flatMap(a => f(a).iterator).toVector)
 
   /**
-   * Filter out some elements of a Vec given a predicate.
+   * Filter out some elements of a Chain given a predicate.
    *
    * This is an O(n) operation.
    *
-   * The resulting Vec will naturally be compressed.
+   * The resulting Chain will naturally be compressed.
    */
-  def filter(p: A => Boolean): Vec[A] =
-    Vec.Elems(iterator.filter(p).toVector)
+  def filter(p: A => Boolean): Chain[A] =
+    Chain.Elems(iterator.filter(p).toVector)
 
   /**
-   * Combine the elements of a Vec into a single value, using a
+   * Combine the elements of a Chain into a single value, using a
    * starter value and an associative function.
    */
   def foldLeft[B](b: B)(f: (B, A) => B): B = {
-    @tailrec def loop(b0: B, v: Vec[A], stack: List[Vec[A]]): B =
+    @tailrec def loop(b0: B, v: Chain[A], stack: List[Chain[A]]): B =
       v match {
-        case Vec.Elems(values) =>
+        case Chain.Elems(values) =>
           val b1 = values.foldLeft(b0)(f)
           stack match {
             case h :: t => loop(b1, h, t)
             case Nil => b1
           }
-        case Vec.Concat(lhs, rhs) =>
+        case Chain.Concat(lhs, rhs) =>
           loop(b0, lhs, rhs :: stack)
       }
     loop(b, this, Nil)
@@ -120,9 +119,9 @@ sealed abstract class Vec[+A] {
    * short-circuit as soon as a single match is found.
    */
   def find(p: A => Boolean): Option[A] = {
-    @tailrec def loop(v: Vec[A], stack: List[Vec[A]]): Option[A] =
+    @tailrec def loop(v: Chain[A], stack: List[Chain[A]]): Option[A] =
       v match {
-        case Vec.Elems(values) =>
+        case Chain.Elems(values) =>
           values.find(p) match {
             case None =>
               stack match {
@@ -132,7 +131,7 @@ sealed abstract class Vec[+A] {
             case some =>
               some
           }
-        case Vec.Concat(lhs, rhs) =>
+        case Chain.Concat(lhs, rhs) =>
           loop(lhs, rhs :: stack)
       }
     loop(this, Nil)
@@ -151,7 +150,7 @@ sealed abstract class Vec[+A] {
     find(p).nonEmpty
 
   /**
-   * Loop over this Vec, applying the given function.
+   * Loop over this Chain, applying the given function.
    *
    * This is an O(n) operation.
    */
@@ -159,31 +158,31 @@ sealed abstract class Vec[+A] {
     iterator.foreach(f)
 
   /**
-   * Allow this Vec to be used where Iterable[A] is required.
+   * Allow this Chain to be used where Iterable[A] is required.
    *
-   * By default Vec does not extend Iterable[A], to avoid inheriting
+   * By default Chain does not extend Iterable[A], to avoid inheriting
    * inefficient methods from that API.
    *
    * This is a fast O(1) operation.
    */
   def toIterable: Iterable[A] =
-    new Vec.IterableVec(this)
+    new Chain.IterableChain(this)
 
   /**
-   * Conver this Vec to a Vector.
+   * Conver this Chain to a Vector.
    *
    * This is an O(n) operation.
    */
   def toVector: Vector[A] =
     this match {
-      case Vec.Elems(values) => values.toVector
+      case Chain.Elems(values) => values.toVector
       case _ => iterator.toVector
     }
 
   /**
-   * Compare two Vec instances.
+   * Compare two Chain instances.
    */
-  def compare[A1 >: A](that: Vec[A1])(implicit ev: Ordering[A1]): Int = {
+  def compare[A1 >: A](that: Chain[A1])(implicit ev: Ordering[A1]): Int = {
     val it0 = this.iterator
     val it1 = that.iterator
     while (it0.hasNext && it1.hasNext) {
@@ -194,24 +193,24 @@ sealed abstract class Vec[+A] {
   }
 
   /**
-   * Produce a string representation of this Vec.
+   * Produce a string representation of this Chain.
    *
    * This is an O(n) operation, which will display the entire contents
-   * of the Vec.
+   * of the Chain.
    */
   override def toString: String =
-    iterator.mkString("Vec(", ", ", ")")
+    iterator.mkString("Chain(", ", ", ")")
 
   /**
-   * Universal equality for Vec.
+   * Universal equality for Chain.
    *
    * In the worst-case this is an O(n) operation, but may be faster
    * due to type mistmatches or finding unequal elements early in the
-   * Vecs.
+   * Chains.
    */
   override def equals(that: Any): Boolean =
     that match {
-      case that: Vec[_] =>
+      case that: Chain[_] =>
         val it0 = this.iterator
         val it1 = that.iterator
         while (it0.hasNext && it1.hasNext) {
@@ -223,7 +222,7 @@ sealed abstract class Vec[+A] {
     }
 
   /**
-   * Hash codes for Vec.
+   * Hash codes for Chain.
    *
    * This is an O(n) operation. It is consistent with equals. This
    * means that if (x == y) then (x.hashCode == y.hashCode).
@@ -239,48 +238,48 @@ sealed abstract class Vec[+A] {
   }
 }
 
-object Vec {
+object Chain {
 
   // a single collection of values
-  case class Elems[A](values: Iterable[A]) extends Vec[A]
+  case class Elems[A](values: Iterable[A]) extends Chain[A]
 
   // concatenations
-  case class Concat[A](lhs: Vec[A], rhs: Vec[A]) extends Vec[A]
+  case class Concat[A](lhs: Chain[A], rhs: Chain[A]) extends Chain[A]
 
   // a shared "empty" vec instance
-  val Empty: Vec[Nothing] = Elems(Nil)
+  val Empty: Chain[Nothing] = Elems(Nil)
 
   /**
-   * Produce an empty Vec[A].
+   * Produce an empty Chain[A].
    */
-  def empty[A]: Vec[A] = Empty
+  def empty[A]: Chain[A] = Empty
 
   /**
-   * Wrap a single A value in a Vec[A].
+   * Wrap a single A value in a Chain[A].
    */
-  def single[A](a: A): Vec[A] = Elems(a :: Nil)
+  def single[A](a: A): Chain[A] = Elems(a :: Nil)
 
   /**
-   * Wrap a collection in a Vec[A].
+   * Wrap a collection in a Chain[A].
    */
-  def apply[A](values: Iterable[A]): Vec[A] = Elems(values)
+  def apply[A](values: Iterable[A]): Chain[A] = Elems(values)
 
   /**
-   * Iterator for a Vec[A].
+   * Iterator for a Chain[A].
    *
    * This is where the magic happens. To efficiently traverse into
-   * Vec.Concat instances, we build our own stack on the heap. When we
-   * descend into the LHS of a Concat we push the RHS onto this stack,
-   * so that when we exhaust the LHS we will remember to get an
+   * Chain.Concat instances, we build our own stack on the heap. When
+   * we descend into the LHS of a Concat we push the RHS onto this
+   * stack, so that when we exhaust the LHS we will remember to get an
    * iterator from the RHS too.
    *
-   * As mentioned earlier, iterating over VecIterator[A] is an O(n)
+   * As mentioned earlier, iterating over ChainIterator[A] is an O(n)
    * operation, that also consumes O(n) heap (the previously-mentioned
    * stack.)
    */
-  class VecIterator[A](vec: Vec[A]) extends Iterator[A] {
+  class ChainIterator[A](vec: Chain[A]) extends Iterator[A] {
     var it: Iterator[A] = Iterator.empty
-    var stack: List[Vec[A]] = Nil
+    var stack: List[Chain[A]] = Nil
 
     descend(vec)
 
@@ -295,8 +294,8 @@ object Vec {
         }
       }
 
-    @tailrec private def descend(v: Vec[A]): Unit = {
-      @tailrec def loop(v: Vec[A]): Boolean = {
+    @tailrec private def descend(v: Chain[A]): Unit = {
+      @tailrec def loop(v: Chain[A]): Boolean = {
         v match {
           case Concat(lhs, rhs) =>
             stack = rhs :: stack
@@ -329,9 +328,9 @@ object Vec {
   }
 
   /**
-   * Wrapper for Vec[A] that provides Iterable[A].
+   * Wrapper for Chain[A] that provides Iterable[A].
    */
-  class IterableVec[+A](vec: Vec[A]) extends Iterable[A] {
+  class IterableChain[+A](vec: Chain[A]) extends Iterable[A] {
     def iterator: Iterator[A] = vec.iterator
   }
 }

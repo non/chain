@@ -1,4 +1,4 @@
-name := "vec"
+name := "chain"
 
 scalaVersion := "2.11.8"
 
