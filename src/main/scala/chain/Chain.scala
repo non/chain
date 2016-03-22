@@ -265,6 +265,12 @@ object Chain {
   def apply[A](values: Iterable[A]): Chain[A] = Elems(values)
 
   /**
+   * Concatenate many collections together as a Chain.
+   */
+  def all[A](values: Iterable[A], moreValues: Iterable[A]*): Chain[A] =
+    moreValues.foldLeft(Chain(values))((chain, x) => chain ++ Chain(x))
+
+  /**
    * Iterator for a Chain[A].
    *
    * This is where the magic happens. To efficiently traverse into

@@ -103,4 +103,9 @@ object ChainSpec extends Properties("Chain") {
     forAll { (x: Chain[Int], p: Int => Boolean) =>
       x.find(p) == x.toVector.find(p)
     }
+
+  property("Chain.all(x, y, z) = Chain(x) ++ Chain(y) ++ Chain(z)") =
+    forAll { (x: Iterable[Int], y: Iterable[Int], z: Iterable[Int]) =>
+      Chain.all(x, y, z) == (Chain(x) ++ Chain(y) ++ Chain(z))
+    }
 }
