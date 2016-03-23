@@ -2,12 +2,12 @@
 
 ### Dedication
 
-> all day long they work so hard / 'til the sun is going down
-> working on the highways and byways / and wearing, wearing a frown
-> you hear them moaning their lives away / then you hear somebody say:
+> all day long they work so hard / 'til the sun is going down /
+> working on the highways and byways / and wearing, wearing a frown /
+> you hear them moaning their lives away / then you hear somebody say: /
 >
-> that's the sound of the men / working on the chain gang
-> that's the sound of the men / working on the chain gang
+> that's the sound of the men / working on the chain gang /
+> that's the sound of the men / working on the chain gang /
 >
 > --Sam Cooke, "Chain Gang" (1960)
 
@@ -61,16 +61,29 @@ libraryDependencies += "org.spire-math" %%% "chain" % "0.1.0"
 ### Details
 
 Chain can wrap any `Iterable[A]` values, and support concatenation
-between mixed collection types:
+between mixed collection types. Here's an example that shows off a
+number of Chain's capabilities:
 
 ```scala
 import chain.Chain
 
-val xs: List[Int] = ...
-val ys: Vector[Int] = ...
-val zs: Option[Int] = ...
+val ws: Iterable[Int] = List(1,2,3)
+val xs: List[Int] = List(4,5,6)
+val ys: Vector[Int] = Vector(7,8,9,10,11)
+val zs: Option[Int] = Some(12)
 
-val c = Chain(xs) ++ Chain(ys) ++ Chain(zs)
+val a = Chain(ws) ++ Chain(xs) // no copying
+val b = Chain.all(ys, zs)      // same as ys ++ zs
+val c = 9 +: (a ++ b) :+ 100   // supports prepend/append
+
+c.toVector           // Vector(1,2,3,4,5,6,7,8,9,10,11,12)
+c.iterator.toList    // List(1,2,3,4,5,6,7,8,9,10,11,12)
+c.foreach(println)   // prints 1-12
+c.find(_ > 6)        // Some(7)
+c.forall(_ >= 0)     // true
+c.exists(_ > 100)    // false
+c.map(_ * 2)         // Chain(2,4,6,8,10,12,14,16,18,20,22,24)
+c.filter(_ % 3 == 0) // Chain(3,6,9,12)
 ```
 
 Chain is sealed and consists of two concrete case classes:
@@ -84,6 +97,15 @@ Iteration over the tree takes advantage of an in-memory stack to
 efficiently walk the contents in O(n) time.
 
 Concatenating chains is always O(1), and iteration is always O(n).
+
+Empty Chains can be obtained by `Chain.empty[A]` and are represented
+as a singleton `Chain.Empty` which is a `Chain(Nil)`. This value is
+immutable and can be shared safely. Chains with a single element are
+constructed by `Chain.single(x)` which constructs `Chain(x :: Nil)`
+instances. This is done transparently in the case of `+:` and `:+`.
+These encoding are relatively efficient although if you are working
+entirely with single elements a more efficient data structure is
+possible.
 
 Some operations that transform the Chain will need to allocate a new
 collection (either directly, or wrapped in a new `Chain[A]`). The
@@ -136,7 +158,9 @@ towards supporting large collections.
 
 As mentioned above, it would be great to have a story for using type
 classes instead of `Iterable[A]` (either via an abstraction or a new
-type).
+type). It could also be nice to have a version which supported lazy
+filtering/mapping (although in many cases this can be emulated with
+things like `.iterator.filter`).
 
 ### Copyright and License
 

@@ -3,7 +3,7 @@ import ReleaseTransformations._
 lazy val chainSettings = Seq(
   organization := "org.spire-math",
   licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
-  homepage := Some(url("http://github.com/striation/chain")),
+  homepage := Some(url("http://github.com/non/chain")),
   scalaVersion := "2.11.8",
   crossScalaVersions := Seq("2.10.6", "2.11.8"),
   scalacOptions ++= Seq(
@@ -26,14 +26,14 @@ lazy val chainSettings = Seq(
   },
   pomExtra := (
     <scm>
-      <url>git@github.com:striation/chain.git</url>
-      <connection>scm:git:git@github.com:striation/chain.git</connection>
+      <url>git@github.com:non/chain.git</url>
+      <connection>scm:git:git@github.com:non/chain.git</connection>
     </scm>
     <developers>
       <developer>
-        <id>striation</id>
+        <id>non</id>
         <name>Erik Osheim</name>
-        <url>http://github.com/striation/</url>
+        <url>http://github.com/non/</url>
       </developer>
     </developers>
   ),
