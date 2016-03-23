@@ -339,4 +339,12 @@ object Chain {
   class IterableChain[+A](vec: Chain[A]) extends Iterable[A] {
     def iterator: Iterator[A] = vec.iterator
   }
+
+  /**
+   * scala.math.Ordering instance for Chains.
+   */
+  implicit def chainOrdering[A: Ordering]: Ordering[Chain[A]] =
+    new Ordering[Chain[A]] {
+      def compare(x: Chain[A], y: Chain[A]): Int = x compare y
+    }
 }

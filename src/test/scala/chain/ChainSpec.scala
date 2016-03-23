@@ -80,27 +80,37 @@ object ChainSpec extends Properties("Chain") {
     }
 
   property("x.map(f).toVector = x.toVector.map(f)") =
-    forAll { (x: Chain[Int], f: Int => Int) =>
+    //forAll { (x: Chain[Int], f: Int => Int) =>
+    forAll { (x: Chain[Int]) =>
+      val f: Int => Int = x => x + 1
       x.map(f).toVector == x.toVector.map(f)
     }
 
   property("x.filter(p).toVector = x.toVector.filter(p)") =
-    forAll { (x: Chain[Int], p: Int => Boolean) =>
+    //forAll { (x: Chain[Int], p: Int => Boolean) =>
+    forAll { (x: Chain[Int]) =>
+      val p: Int => Boolean = x => (x & 1) == 0
       x.filter(p).toVector == x.toVector.filter(p)
     }
 
   property("x.flatMap(f).toVector = x.toVector.flatMap(f)") =
-    forAll { (x: Chain[Int], f: Int => Vector[Int]) =>
+    //forAll { (x: Chain[Int], f: Int => Vector[Int]) =>
+    forAll { (x: Chain[Int]) =>
+      val f: Int => Vector[Int] = x => Vector(x, x >>> 1, x >>> 2)
       x.flatMap(n => Chain(f(n))).toVector == x.toVector.flatMap(f)
     }
 
   property("x.foldLeft(b)(f) = x.toVector.foldLeft(b)(f)") =
-    forAll { (x: Chain[Int], b: Double, f: (Double, Int) => Double) =>
+    //forAll { (x: Chain[Int], b: Double, f: (Double, Int) => Double) =>
+    forAll { (x: Chain[Int], b: Double) =>
+      val f: (Double, Int) => Double = (acc, x) => acc + x
       x.foldLeft(b)(f) == x.toVector.foldLeft(b)(f)
     }
   
   property("x.find(p) = x.toVector.find(p)") =
-    forAll { (x: Chain[Int], p: Int => Boolean) =>
+    //forAll { (x: Chain[Int], p: Int => Boolean) =>
+    forAll { (x: Chain[Int]) =>
+      val p: Int => Boolean = x => (x & 1) == 1
       x.find(p) == x.toVector.find(p)
     }
 

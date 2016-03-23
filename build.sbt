@@ -10,6 +10,8 @@ lazy val chainSettings = Seq(
     "-feature",
     "-deprecation",
     "-unchecked"),
+  libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.13.0" % "test",
+  scalaJSStage in Global := FastOptStage,
   releaseCrossBuild := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   publishMavenStyle := true,
