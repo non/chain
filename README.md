@@ -15,7 +15,7 @@
 
 Lots of small collections got you down? Tired of paying O(n) to
 concatenate lists, or generating a lot of garbage prepending to a
-vector? If so, chain is for you!
+vector? If so, Chain is for you!
 
 Chain is a small library that supports efficient concatenation across
 many collection types, as well as efficient iteration across the
@@ -42,25 +42,25 @@ them. Chain can help make that code more efficient.
 
 ### Quick Start
 
-Chain supports Scala 2.10 and 2.11.
+Chain supports Scala 2.10, 2.11, and 2.12.
 
 To include Chain in your projects, you can use the following
 `build.sbt` snippet:
 
 ```scala
-libraryDependencies += "org.spire-math" %% "chain" % "0.1.0"
+libraryDependencies += "org.spire-math" %% "chain" % "0.2.0"
 ```
 
 Chain also supports Scala.js. To use Chain in your Scala.js projects,
 include the following `build.sbt` snippet:
 
 ```scala
-libraryDependencies += "org.spire-math" %%% "chain" % "0.1.0"
+libraryDependencies += "org.spire-math" %%% "chain" % "0.2.0"
 ```
 
 ### Details
 
-Chain can wrap any `Iterable[A]` values, and support concatenation
+Chain can wrap any `Iterable[A]` values, and supports concatenation
 between mixed collection types. Here's an example that shows off a
 number of Chain's capabilities:
 
@@ -74,7 +74,8 @@ val zs: Option[Int] = Some(12)
 
 val a = Chain(ws) ++ Chain(xs) // no copying
 val b = Chain.all(ys, zs)      // same as ys ++ zs
-val c = 9 +: (a ++ b) :+ 100   // supports prepend/append
+val c = a ++ b                 // still no copying
+val d = 9 +: c :+ 100          // supports prepend/append
 
 c.toVector           // Vector(1,2,3,4,5,6,7,8,9,10,11,12)
 c.iterator.toList    // List(1,2,3,4,5,6,7,8,9,10,11,12)
@@ -85,6 +86,10 @@ c.exists(_ > 100)    // false
 c.map(_ * 2)         // Chain(2,4,6,8,10,12,14,16,18,20,22,24)
 c.filter(_ % 3 == 0) // Chain(3,6,9,12)
 ```
+
+(Note that `.toString` evaluates the entire contents of the Chain, so
+displaying a chain value in the REPL will force iteration over the
+contents of the chain.)
 
 Chain is sealed and consists of two concrete case classes:
 
@@ -149,7 +154,7 @@ type class like `Foldable` instead.
 ### Future Work
 
 Additional benchmarking and profiling would be great. Almost any chain
-method implemented with `.iterator` could be specialized if it provded
+method implemented with `.iterator` could be specialized if it proved
 to be a hotspot.
 
 It might be nice to have a few different types to support various
@@ -167,4 +172,4 @@ things like `.iterator.filter`).
 All code is available to you under the MIT license, available at
 http://opensource.org/licenses/mit-license.php.
 
-Copyright Erik Osheim, 2016.
+Copyright Erik Osheim, 2016-2017.
