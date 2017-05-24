@@ -4,7 +4,7 @@ lazy val chainSettings = Seq(
   organization := "org.spire-math",
   licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
   homepage := Some(url("http://github.com/non/chain")),
-  scalaVersion := "2.11.11",
+  scalaVersion := "2.12.2",
   crossScalaVersions := Seq("2.10.6", "2.11.11", "2.12.2"),
   scalacOptions ++= Seq(
     "-feature",
@@ -17,9 +17,9 @@ lazy val chainSettings = Seq(
   publishMavenStyle := true,
   publishArtifact in Test := false,
   pomIncludeRepository := Function.const(false),
-  publishTo <<= (version).apply { v =>
+  publishTo := {
     val nexus = "https://oss.sonatype.org/"
-    if (v.trim.endsWith("SNAPSHOT"))
+    if (isSnapshot.value)
       Some("Snapshots" at nexus + "content/repositories/snapshots")
     else
       Some("Releases" at nexus + "service/local/staging/deploy/maven2")
