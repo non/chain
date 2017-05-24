@@ -73,9 +73,11 @@ val ys: Vector[Int] = Vector(7,8,9,10,11)
 val zs: Option[Int] = Some(12)
 
 val a = Chain(ws) ++ Chain(xs) // no copying
-val b = Chain.all(ys, zs)      // same as ys ++ zs
+val b = Chain.all(ys, zs)      // same as ys ++ zs, but no copying
 val c = a ++ b                 // still no copying
 val d = 9 +: c :+ 100          // supports prepend/append
+
+val ns: Iterable[Int] = c.toIterable // thin wrapper for scala compat
 
 c.toVector           // Vector(1,2,3,4,5,6,7,8,9,10,11,12)
 c.iterator.toList    // List(1,2,3,4,5,6,7,8,9,10,11,12)
@@ -125,7 +127,7 @@ collection:
  * `.toVector`: usually allocates a new `Vector[A]`.
 
 (If your chain is a `Chain.Elems` wrapping a `Vector[A]`, then
-`.toVector` just return that vector directly.)
+`.toVector` will just return that vector directly.)
 
 ### Caveats
 
@@ -150,6 +152,12 @@ Chain can be thought of as a limited kind of rope that is specialized
 to Scala collections (specifically `Iterable[A]`). You can imagine a
 similar (but more principled) data structure that is based around a
 type class like `Foldable` instead.
+
+In general calling `.iterator` should be relatively low cost. In cases
+where the chain is right-associated (e.g. `Chain(xs) ++ (...)`),
+almost no work will take place. In cases where a chain is deeply
+left-associated, the call will need to descend until it finds the
+leftmost concrete collection that is not empty.
 
 ### Future Work
 
