@@ -48,14 +48,14 @@ To include Chain in your projects, you can use the following
 `build.sbt` snippet:
 
 ```scala
-libraryDependencies += "org.spire-math" %% "chain" % "0.2.0"
+libraryDependencies += "org.spire-math" %% "chain" % "0.3.0"
 ```
 
 Chain also supports Scala.js. To use Chain in your Scala.js projects,
 include the following `build.sbt` snippet:
 
 ```scala
-libraryDependencies += "org.spire-math" %%% "chain" % "0.2.0"
+libraryDependencies += "org.spire-math" %%% "chain" % "0.3.0"
 ```
 
 ### Details
@@ -180,4 +180,4 @@ things like `.iterator.filter`).
 All code is available to you under the MIT license, available at
 http://opensource.org/licenses/mit-license.php.
 
-Copyright Erik Osheim, 2016-2017.
+Copyright Erik Osheim, 2016-2018.
