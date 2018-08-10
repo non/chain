@@ -4,13 +4,13 @@ lazy val chainSettings = Seq(
   organization := "org.spire-math",
   licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
   homepage := Some(url("http://github.com/non/chain")),
-  scalaVersion := "2.12.2",
-  crossScalaVersions := Seq("2.10.6", "2.11.12", "2.12.4"),
+  scalaVersion := "2.12.6",
+  crossScalaVersions := Seq("2.10.6", "2.11.12", "2.12.6"),
   scalacOptions ++= Seq(
     "-feature",
     "-deprecation",
     "-unchecked"),
-  libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.13.5" % "test",
+  libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.14.0" % "test",
   //scalaJSStage in Global := FastOptStage, //FIXME how to update this for sbt 1.0?
   releaseCrossBuild := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
