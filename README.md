@@ -48,14 +48,14 @@ To include Chain in your projects, you can use the following
 `build.sbt` snippet:
 
 ```scala
-libraryDependencies += "org.spire-math" %% "chain" % "0.3.0"
+libraryDependencies += "org.spire-math" %% "chain" % "0.3.1"
 ```
 
 Chain also supports Scala.js. To use Chain in your Scala.js projects,
 include the following `build.sbt` snippet:
 
 ```scala
-libraryDependencies += "org.spire-math" %%% "chain" % "0.3.0"
+libraryDependencies += "org.spire-math" %%% "chain" % "0.3.1"
 ```
 
 ### Details
